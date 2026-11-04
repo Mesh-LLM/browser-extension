@@ -68,7 +68,7 @@ else
   say "Downloading the extension from github.com/$REPO ($REF)…"
   curl -fsSL "https://codeload.github.com/$REPO/tar.gz/$REF" | tar -xz -C "$TMP" \
     || die "could not download github.com/$REPO"
-  SRC="$(find "$TMP" -maxdepth 2 -name manifest.json -path '*/extension/*' -exec dirname {} \; | head -1)"
+  SRC="$(find "$TMP" -maxdepth 3 -name manifest.json -path '*/extension/*' -exec dirname {} \; | head -1)"
   SRC="${SRC%/extension}"
   [[ -f "$SRC/extension/manifest.json" ]] || die "unexpected archive layout"
 fi
