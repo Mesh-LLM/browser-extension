@@ -27,7 +27,7 @@ curl -fsSL https://raw.githubusercontent.com/Mesh-LLM/browser-extension/main/ins
 
 ## What it does
 
-A browser version of the [Mesh desktop app](https://github.com/Mesh-LLM/mesh-app). Firefox isn't supported yet.
+Start, join and share a [mesh-llm](https://github.com/Mesh-LLM/mesh-llm) node from your browser, and chat with the mesh beside any page.
 
 **Popup (the control panel)**
 - **Status line:** public or private mesh, peer count, and what this Mac is sharing. The toolbar badge shows the peer count: green for public, violet for private. Full details are in the Console.
@@ -60,7 +60,7 @@ A browser version of the [Mesh desktop app](https://github.com/Mesh-LLM/mesh-app
 
 The extension shows it and works with it: status, Chat, side panel and invites. It never starts a second copy, because the launcher refuses when port 3131 or 9337 is already in use. **Stop** asks for confirmation before stopping a node it didn't start.
 
-## How settings map to mesh-llm (same as the desktop app)
+## How settings map to mesh-llm
 
 | Settings | Command |
 |---|---|
@@ -70,7 +70,7 @@ The extension shows it and works with it: status, Chat, side panel and invites. 
 | Private, joined with an invite | `serve --owner-required --trust-policy require-owned --join-file ~/.mesh-llm-browser/invite.txt` |
 | Private, not sharing | add `--client` to either private line |
 
-- **Automatic model**, the same tiers as the desktop app. Without one, `serve --auto` just sits on standby:
+- **Automatic model**, picked by memory tier. Without one, `serve --auto` just sits on standby:
   - 128 GB or more of memory (with at least 22 GB free): Qwen3.8-27B.
   - 24 GB or more (12 GB free): Gemma 4 12B.
   - 16 GB or more (6 GB free): Qwen3.5-4B.
@@ -97,3 +97,8 @@ curl -fsSL https://raw.githubusercontent.com/Mesh-LLM/browser-extension/main/ins
 ```
 
 This leaves your `~/.mesh-llm` profile and downloaded models alone.
+
+## TODO
+
+- Firefox: a separate manifest using `background.scripts` and `sidebar_action`, signed as a self-distributed `.xpi`.
+- Linux support in the installer.
