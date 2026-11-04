@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Mesh LLM",
+  "version": "0.2.0",
+  "description": "Run, join and share a Mesh LLM node from your browser, and chat with the mesh beside any page.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmaAmDDSSXXr0vwytqt+Mqu0uRFT5w/yvIc1KFjsnd/fV7JvlctNdS1Ojr+HKivte49uf7k9tAYrDmSIXWgfr6KyE+SThQXIigNTetQpBEsP4vPKQ08AJuupo5lGWvFZQYEDGC2oWU43Tn+qQbVzxSnFOJeMlld/y+v6khG1EQeIowwfLdDM6/iTsk/ogsiSD24dua4H+QMQ0PABhHlcOvq1XWbUjwG1Ph4F3DPEkr4IFGPgZbJVYbvuqjsGU1MGLtHqaVtNzBpaCQrff9ocxzX6iiCx9K7Y2hj7sFps3z7DFKftoqNtU1AsjshQsW9VhsyJbwQLB4PP9wJT7K2h6lQIDAQAB",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Mesh LLM",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "nativeMessaging",
+    "storage",
+    "alarms",
+    "activeTab",
+    "scripting",
+    "contextMenus",
+    "sidePanel",
+    "tabs",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  }
+}

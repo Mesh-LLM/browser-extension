@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <img src="icons/32.png" alt="" />
+    <div class="title">
+      <h1>Mesh</h1>
+      <div id="headline" class="muted">checking…</div>
+    </div>
+    <span id="pill" class="pill off">…</span>
+  </header>
+
+  <!-- launcher not installed -->
+  <section id="setup" hidden>
+    <p><strong>One-time setup.</strong> Paste this into Terminal:</p>
+    <pre id="installCmd">curl -fsSL https://raw.githubusercontent.com/Mesh-LLM/browser-extension/main/install.sh | bash</pre>
+    <button id="copyInstall">Copy command</button>
+    <p class="muted">Downloads the latest mesh-llm preview and lets this extension start it. If mesh-llm is already running some other way, the extension still shows it — setup is only needed for Start/Stop.</p>
+  </section>
+
+  <!-- primary actions -->
+  <div class="actions">
+    <button id="chat" class="primary big" disabled>Chat</button>
+    <button id="panel" class="big" title="Chat beside any page">Side panel</button>
+  </div>
+  <div class="links">
+    <a href="#" id="console">Console</a>
+    <span class="dot">·</span>
+    <a href="#" id="showLogs">Logs</a>
+    <span class="dot">·</span>
+    <a href="#" id="update" title="Update mesh-llm (preview) and this extension">Update</a>
+  </div>
+
+  <p id="external" class="note" hidden></p>
+
+  <!-- settings, like the desktop app panel -->
+  <section>
+    <h2>Mesh</h2>
+    <div class="seg" role="radiogroup">
+      <button data-conn="public" role="radio">Public</button>
+      <button data-conn="private" role="radio">Private</button>
+    </div>
+    <p id="connHelp" class="muted"></p>
+
+    <div id="privateBox" hidden>
+      <div id="joinedBox" hidden>
+        <p class="muted">Joined with an invite. <a href="#" id="leave">Create my own private mesh instead</a></p>
+      </div>
+      <div class="row">
+        <button id="copyInvite">Copy an invite</button>
+        <span id="inviteMsg" class="muted small"></span>
+      </div>
+      <label class="lbl" for="invite">Join with an invite</label>
+      <div class="row">
+        <input id="invite" placeholder="Paste the invite code" autocomplete="off" spellcheck="false" />
+        <button id="join">Join</button>
+      </div>
+    </div>
+
+    <h2>Share compute</h2>
+    <label class="toggle">
+      <input type="checkbox" id="share" />
+      <span>Share this Mac's GPU with the mesh</span>
+    </label>
+    <input id="model" placeholder="Model (blank = pick automatically)" spellcheck="false" />
+
+    <div class="row apply">
+      <button id="start" class="primary" hidden>Start Mesh</button>
+      <button id="apply" class="primary" hidden>Restart to apply</button>
+      <button id="stop" class="danger" hidden>Stop</button>
+    </div>
+    <div id="err" hidden>
+      <p id="errMsg" class="error"></p>
+      <p id="errHint" class="muted" hidden></p>
+      <pre id="errLog"></pre>
+    </div>
+  </section>
+
+  <footer>
+    <label><input type="checkbox" id="autoStart" /> Start Mesh when the browser opens</label>
+  </footer>
+  <pre id="logs" hidden></pre>
+
+  <script src="popup.js"></script>
+</body>
+</html>

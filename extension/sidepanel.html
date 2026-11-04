@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <header>
+    <img src="icons/32.png" alt="" />
+    <strong>Mesh</strong>
+    <select id="model" title="Model"></select>
+    <button id="newChat" title="New chat">＋</button>
+  </header>
+
+  <div id="offline" hidden>
+    <p>Mesh isn't running.</p>
+    <button id="openPopupHint" disabled>Start it from the toolbar icon</button>
+  </div>
+
+  <main id="log">
+    <div class="empty" id="empty">
+      <p>Ask the mesh anything, or use the page you're on.</p>
+      <div class="chips">
+        <button data-act="summarise">Summarise this page</button>
+        <button data-act="keypoints">Key points</button>
+        <button data-act="explain-sel">Explain my selection</button>
+      </div>
+    </div>
+  </main>
+
+  <form id="form">
+    <label class="ctx"><input type="checkbox" id="usePage" /> Include this page <span id="pageTitle" class="muted"></span></label>
+    <textarea id="prompt" rows="3" placeholder="Message the mesh  (Enter to send, Shift+Enter for newline)"></textarea>
+    <div class="bar">
+      <span id="hint" class="muted"></span>
+      <button type="button" id="stop" hidden>Stop</button>
+      <button type="submit" id="send" class="primary">Send</button>
+    </div>
+  </form>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
