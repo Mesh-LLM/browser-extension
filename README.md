@@ -1,6 +1,33 @@
 # Mesh LLM browser extension
 
-A browser version of the [Mesh desktop app](https://github.com/Mesh-LLM/mesh-app) for [mesh-llm](https://github.com/Mesh-LLM/mesh-llm). It runs in Chrome and other Chromium browsers. Firefox support is included but untested.
+> ⚠️ **Experimental, best effort, use at your own risk.**
+> This is an unofficial, early-stage project with no support and no guarantees. It installs and runs a **preview** build of [mesh-llm](https://github.com/Mesh-LLM/mesh-llm) on your Mac. **Public** mode joins an open mesh of other people's computers, so anything you send in chat goes to whichever peer serves it. Don't use it for anything sensitive. It may break, change, or disappear at any time.
+
+## Quick start (macOS, Apple Silicon, Chrome or another Chromium browser)
+
+**1. Run this in Terminal:**
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Mesh-LLM/browser-extension/main/install.sh | bash
+```
+
+**2. Load the extension.** The installer opens `chrome://extensions` and copies the folder path to your clipboard.
+- Turn on **Developer mode** (top right), then click **Load unpacked**.
+- Press **⌘⇧G**, paste with **⌘V**, press Enter, and click **Open**.
+
+**3. Click the jellyfish in the toolbar, then click Start Mesh.**
+
+To update, click **Update** in the popup. To remove everything:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Mesh-LLM/browser-extension/main/install.sh | bash -s -- --uninstall
+```
+
+---
+
+## What it does
+
+A browser version of the [Mesh desktop app](https://github.com/Mesh-LLM/mesh-app). Firefox isn't supported yet.
 
 **Popup (the control panel)**
 - **Status line:** public or private mesh, peer count, and what this Mac is sharing. The toolbar badge shows the peer count: green for public, violet for private. Full details are in the Console.
@@ -17,31 +44,17 @@ A browser version of the [Mesh desktop app](https://github.com/Mesh-LLM/mesh-app
 - **Include this page**, **Summarise this page**, **Key points**, and **Explain my selection**.
 - Right-click menu: *Ask the mesh about "…"* and *Summarise this page with the mesh*.
 
-## Install (macOS, Apple Silicon)
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/Mesh-LLM/browser-extension/main/install.sh | bash
-```
-
-Then load the extension once. The installer opens `chrome://extensions` and copies the folder path to your clipboard:
-
-1. Turn on **Developer mode** (top right).
-2. Click **Load unpacked**.
-3. Press **⌘⇧G**, paste, press Enter, and click **Open**. The folder is `~/.mesh-llm-browser/extension`.
-
-Click the jellyfish in the toolbar, then **Start Mesh**.
+## Install details
 
 **What the installer does:**
 - Everything goes into `~/.mesh-llm-browser`, with no `sudo`.
 - It downloads this repo's extension and launcher, plus the latest mesh-llm **preview**. The mesh-llm download is checked against its published checksum.
-- It registers the launcher with Chrome, Brave, Edge, Arc, Chromium, Vivaldi and Firefox, whichever are installed.
+- It registers the launcher with Chrome, Brave, Edge, Arc, Chromium and Vivaldi, whichever are installed.
 - Read [`install.sh`](install.sh) first if you like. It's short.
 
 **Updating:** click **Update** in the popup. It updates mesh-llm, the extension files and the launcher, then reloads the extension. Re-running the install command does the same.
 
 **Why Developer mode?** On macOS, Chrome only installs extensions from the Chrome Web Store, or unpacked in Developer mode. This project isn't in the store, so it's loaded unpacked. It's the same code you can read here.
-
-**Use at your own risk.** This is an early preview of mesh-llm, and the launcher runs it on your machine. Public mode joins an open mesh of other people's computers.
 
 ## If mesh-llm is already running
 
