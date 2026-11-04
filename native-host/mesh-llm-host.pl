@@ -82,12 +82,70 @@ sub bin_version {
 my $MIN_NODE_VERSION = '0.76.0';
 my $INVITE = "$BASE/invite.txt";
 
+# Automatic model ladder, ported from the Mesh desktop app
+# (Mesh-LLM/mesh-app src/model_selection.rs). Without a --model, public
+# `serve --auto` just sits on standby with nothing loaded.
+my $GIB = 1024 ** 3;
+my @RUNGS = (
+    # model,                                                                             floor GiB, budget GiB, needs GPU
+    ['unsloth/Qwen3.8-27B-GGUF@4ca720788d1e01f1bff70c033e0d0028fd02e502:UD-Q4_K_M',      128, 22, 1],
+    ['unsloth/gemma-4-12b-it-GGUF@fc034cfff751157913579611efad8462ac1be606:Q4_K_M',      24,  12, 1],
+    ['unsloth/Qwen3.5-4B-GGUF@e87f176479d0855a907a41277aca2f8ee7a09523:Q4_K_M',          16,  6,  0],
+);
+
+sub total_memory { my $b = `sysctl -n hw.memsize 2>/dev/null`; chomp $b; return $b =~ /^\d+$/ ? $b : 0; }
+
+sub available_memory {
+    my $vm = `/usr/bin/vm_stat 2>/dev/null`;
+    my ($page) = $vm =~ /page size of (\d+)/ or return 0;
+    my ($free) = $vm =~ /Pages free:\s+(\d+)/;
+    my ($inactive) = $vm =~ /Pages inactive:\s+(\d+)/;
+    return (($free // 0) + ($inactive // 0)) * $page;
+}
+
+sub auto_model {
+    my $total = total_memory();
+    return undef if $total < 16 * $GIB;
+    my $reserve = 2 * $GIB > $total / 4 ? 2 * $GIB : $total / 4;
+    my $avail = available_memory();
+    my $budget = $avail < $total - $reserve ? $avail : $total - $reserve;
+    my $accel = (`uname -m` =~ /arm64/) ? 1 : 0;
+    for my $r (@RUNGS) {
+        my ($m, $floor, $need, $gpu) = @$r;
+        return $m if $total >= $floor * $GIB && $budget >= $need * $GIB && (!$gpu || $accel);
+    }
+    return undef;
+}
+
+# The user's own ~/.mesh-llm/config.toml [[models]] wins over any --model.
+sub config_declares_models {
+    open(my $fh, '<', "$HOME/.mesh-llm/config.toml") or return 0;
+    local $/; my $t = <$fh>; close $fh;
+    return $t =~ /^\s*\[\[models\]\]/m || $t =~ /^\s*models\s*=/m ? 1 : 0;
+}
+
+# Which model this launch will serve, and why (for the popup).
+sub model_plan {
+    my ($opts) = @_;
+    my $share = exists $opts->{share} ? ($opts->{share} ? 1 : 0) : 1;
+    return { model => undef, source => 'not sharing' } unless $share;
+    return { model => undef, source => 'config.toml' } if config_declares_models();
+    my $m = $opts->{model} // '';
+    return { model => $m, source => 'chosen' } if $m ne '';
+    my $auto = auto_model();
+    return { model => $auto, source => $auto ? 'automatic' : 'no fit' };
+}
+
 sub build_args {
     my ($opts) = @_;
     my $conn  = $opts->{connection} // 'public';
     my $share = exists $opts->{share} ? ($opts->{share} ? 1 : 0) : 1;
-    my $model = $opts->{model} // '';
-    die "invalid model name\n" if $model ne '' && $model !~ m{^[A-Za-z0-9_.:/@\-]{1,200}$};
+    die "invalid model name\n" if ($opts->{model} // '') ne '' && $opts->{model} !~ m{^[A-Za-z0-9_.:/@\-]{1,200}$};
+    my $plan = model_plan($opts);
+    my $model = $plan->{model} // '';
+    # A private automatic no-fit must be client-only (as in the desktop app);
+    # public with no fit still joins as a standby server.
+    $share = 0 if $conn eq 'private' && $plan->{source} eq 'no fit';
 
     my @args;
     if ($conn eq 'public') {
@@ -299,7 +357,8 @@ my $reply = eval {
         for (1 .. 40) { last unless port_owner(); select(undef, undef, undef, 0.25); }
         do_start($msg->{opts} || {})
     }
-    elsif ($cmd eq 'args')   { { ok => JSON::PP::true, args => [build_args($msg->{opts} || {})] } }
+    elsif ($cmd eq 'args')   { { ok => JSON::PP::true, args => [build_args($msg->{opts} || {})], plan => model_plan($msg->{opts} || {}) } }
+    elsif ($cmd eq 'plan')   { { ok => JSON::PP::true, %{ model_plan($msg->{opts} || {}) } } }
     elsif ($cmd eq 'logs')   { { ok => JSON::PP::true, text => tail_log(int($msg->{lines} || 80)) } }
     elsif ($cmd eq 'update') { do_update($msg->{binary_only}) }
     else                     { die "unknown cmd '$cmd'\n" }

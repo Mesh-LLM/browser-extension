@@ -175,6 +175,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         await refresh();
         return r;
       }
+      case "plan":
+        return native({ cmd: "plan", opts: launchOpts(await settings()) });
       case "logs":
         return native({ cmd: "logs", lines: 150 });
       case "update":

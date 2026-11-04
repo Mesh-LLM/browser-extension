@@ -64,12 +64,18 @@ The extension shows it and works with it: status, Chat, side panel and invites. 
 
 | Settings | Command |
 |---|---|
-| Public, sharing | `serve --auto [--model M]` |
+| Public, sharing | `serve --auto --model <auto pick or your choice>` |
 | Public, not sharing | `client --auto` |
-| Private, my own mesh | `serve --owner-required --trust-policy require-owned --min-node-version 0.76.0` |
+| Private, my own mesh | `serve --owner-required --trust-policy require-owned --min-node-version 0.76.0 --model <auto>` |
 | Private, joined with an invite | `serve --owner-required --trust-policy require-owned --join-file ~/.mesh-llm-browser/invite.txt` |
 | Private, not sharing | add `--client` to either private line |
 
+- **Automatic model**, the same tiers as the desktop app. Without one, `serve --auto` just sits on standby:
+  - 128 GB or more of memory (with at least 22 GB free): Qwen3.8-27B.
+  - 24 GB or more (12 GB free): Gemma 4 12B.
+  - 16 GB or more (6 GB free): Qwen3.5-4B.
+  - Less than that: no model, so it joins on standby (or as a client in Private mode).
+  - A model you type in the popup wins over the automatic pick, and `[[models]]` in your `~/.mesh-llm/config.toml` wins over both.
 - Uses your normal `~/.mesh-llm` profile, so the identity, config and models are the same as when you run mesh-llm from Terminal. Model files live in the Hugging Face cache, not in `~/.mesh-llm`.
 - A private mesh needs an owner identity. If the machine has none, the launcher creates one with `mesh-llm auth init --keychain`. It never replaces an existing one.
 - The invite is written to a file only you can read (`0600`) and passed with `--join-file`, so it doesn't appear in process listings.

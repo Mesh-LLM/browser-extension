@@ -55,6 +55,18 @@ function renderSettings() {
   $("autoStart").checked = !!S.autoStart;
 }
 
+const PLAN_TEXT = {
+  automatic: (m) => `Automatic: ${shortModel(m)} (picked to fit this Mac)`,
+  chosen: (m) => `Serving ${shortModel(m)} (your choice)`,
+  "config.toml": () => "Models come from your ~/.mesh-llm/config.toml",
+  "no fit": () => "No model fits this Mac's free memory, so it joins on standby",
+  "not sharing": () => "Not sharing: this Mac only uses the mesh",
+};
+async function renderPlan() {
+  const r = await send({ type: "plan" });
+  $("plan").textContent = r?.ok ? (PLAN_TEXT[r.source]?.(r.model) ?? "") : "";
+}
+
 function renderControls() {
   const hostOk = host?.ok;
   const canLaunch = hostOk && host.installed;
@@ -100,8 +112,16 @@ function renderStatus() {
   const peers = (status.peers || []).length;
   const serving = status.serving_models || [];
   $("headline").textContent = `${priv ? "Private" : "Public"} mesh · ${peers} peer${peers === 1 ? "" : "s"}` +
-    (serving.length ? ` · sharing ${shortModel(serving[0])}` : status.is_client ? " · not sharing" : " · sharing (standby)");
-  $("headline").title = `mesh-llm ${status.version}`;
+    (serving.length ? ` · serving ${shortModel(serving[0])}`
+      : status.is_client ? " · using the mesh (not sharing)"
+      : status.node_state === "loading" ? " · loading a model…"
+      : " · standby, GPU offered");
+  $("headline").title = {
+    client: "Client: uses the mesh, never shares this Mac's GPU.",
+    standby: "Standby: offering this Mac's GPU, no model loaded yet. It loads one when the mesh needs it.",
+    loading: "Loading: downloading or loading a model to serve.",
+    serving: "Serving: a model is loaded and answering requests from the mesh.",
+  }[status.node_state] || "";
 }
 
 async function render() {
@@ -138,8 +158,8 @@ document.querySelectorAll(".seg button").forEach((b) => (b.onclick = async () =>
   await save({ connection: b.dataset.conn });
   renderSettings(); renderControls();
 }));
-$("share").onchange = async () => { await save({ share: $("share").checked }); renderSettings(); renderControls(); };
-$("model").onchange = async () => { await save({ model: $("model").value.trim() }); renderControls(); };
+$("share").onchange = async () => { await save({ share: $("share").checked }); renderSettings(); renderControls(); renderPlan(); };
+$("model").onchange = async () => { await save({ model: $("model").value.trim() }); renderControls(); renderPlan(); };
 $("autoStart").onchange = () => save({ autoStart: $("autoStart").checked });
 
 $("join").onclick = async () => {
@@ -224,6 +244,7 @@ $("update").onclick = async (e) => {
 (async () => {
   S = { ...DEFAULTS, ...(await chrome.storage.local.get(Object.keys(DEFAULTS))) };
   renderSettings();
+  renderPlan();
   await render();
   setInterval(() => { if (!busy) render(); }, 4000);
 })();
